@@ -33,7 +33,6 @@ impl FetchServer {
         loop {
             for _ in self.socket.recv(&mut buffer) {
                 let buffer = buffer.to_vec();
-                let string = String::from_utf8(buffer.clone())?;
                 match publisher.publish(subject.to_string(), buffer.into()).await {
                     Ok(_) => (),
                     Err(e) => {
