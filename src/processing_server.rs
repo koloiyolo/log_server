@@ -1,3 +1,4 @@
+use super::message::Message;
 use async_nats::*;
 use futures::StreamExt;
 
@@ -16,7 +17,9 @@ impl ProcessingServer {
     pub async fn serve(self) -> Result<(), async_nats::Error> {
         let mut subscriber = self.subscriber;
         while let Some(message) = subscriber.next().await {
-            println!("{message:?}");
+            let msg = Message::from(message);
+            let msg: String = msg.into();
+            println!("{msg}");
         }
         Ok(())
     }
