@@ -11,7 +11,7 @@ stack I'll be using in my future work, which consists of:
 * [ ] [poem](https://docs.rs/poem/latest/poem/)
 * [ ] [poem_openapi](https://docs.rs/poem-openapi/latest/poem_openapi/)
 
-I've chosen the topic of logs server because it requires handling quick data flow, usually from multiple sources, which is similar in a way to what I'll be doing in my future work. I've also some expertise in this topic due to my diploma project which was *Project and implementation of log management and device monitoring system* available [here](https://github.com/koloiyolo/engineering_thesis_django)
+I've chosen the topic of logs server because it requires handling quick data flow, usually from multiple sources, which is similar in a way to what I'll be doing in my future work. I also have some expertise in this topic due to my diploma project which was *Project and implementation of log management and device monitoring system* available [here](https://github.com/koloiyolo/engineering_thesis_django)
 
 ## Current state
 
