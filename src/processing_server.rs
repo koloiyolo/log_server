@@ -21,3 +21,11 @@ impl ProcessingServer {
         Ok(())
     }
 }
+
+//  Example message
+//  Message {
+//      subject: Subject { bytes: b"test_subject348573485789345789" },
+//      reply: None,
+//      payload: b"{{Message body}}",
+//      headers: None, status: None, description: None, length: 249
+//  }
