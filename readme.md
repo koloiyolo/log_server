@@ -15,6 +15,12 @@ I've chosen the topic of logs server because it requires handling quick data flo
 
 ## Current state
 
-For now the log server has
+For now the log server has:
+* [x] Cli interface
+* [x] Fetch server
+* [x] Processing server
+* [ ] Database
+* [ ] Api endpoints
+* [ ] Api docs
 
 Rest of docs is `todo!()`
