@@ -8,6 +8,8 @@ use log_server::processing_server::ProcessingServer;
 /// In rsyslog.conf:
 /// *.* action(type="omfwd" target="127.0.0.1" port="5014" protocol="udp")
 
+const DATABASE_URL: &str = "sqlite://message.db";
+
 #[tokio::main]
 async fn main() -> Result<(), async_nats::Error> {
     let cli = Cli::parse();
@@ -17,9 +19,11 @@ async fn main() -> Result<(), async_nats::Error> {
     let queue_address = cli.nats_address;
     let subject = cli.subject;
 
+    let database_url = DATABASE_URL.to_string();
+
     let fetch_server = FetchServer::new(&fetch_address, &queue_address, &subject, None).await?;
-    let processing_server = ProcessingServer::new(&queue_address, &subject).await?;
-    let api_server = ApiServer::new(&api_address).await?;
+    let processing_server = ProcessingServer::new(&queue_address, &subject, &database_url).await?;
+    let api_server = ApiServer::new(&api_address, &database_url).await?;
 
     let fetch_server = tokio::spawn(fetch_server.serve());
     let processing_server = tokio::spawn(processing_server.serve());
