@@ -1,25 +1,42 @@
 use super::message::Message;
 use async_nats::*;
 use futures::StreamExt;
+use sqlx::SqlitePool;
 
 pub struct ProcessingServer {
     subscriber: Subscriber,
+    pool: SqlitePool,
 }
 
 impl ProcessingServer {
-    pub async fn new(queue_addres: &String, subject: &String) -> Result<Self, async_nats::Error> {
+    pub async fn new(
+        queue_addres: &String,
+        subject: &String,
+        database_url: &String,
+    ) -> Result<Self, async_nats::Error> {
         let queue = async_nats::connect(queue_addres).await?;
         let subscriber = queue.subscribe(subject.to_string()).await?;
+        let pool = SqlitePool::connect(database_url).await?;
 
-        Ok(ProcessingServer { subscriber })
+        Ok(ProcessingServer { subscriber, pool })
     }
 
     pub async fn serve(self) -> Result<(), async_nats::Error> {
         let mut subscriber = self.subscriber;
+
         while let Some(message) = subscriber.next().await {
             let msg = Message::from(message);
-            let msg: String = msg.into();
-            println!("{msg}");
+            let result = sqlx::query!(
+                "INSERT INTO message (subject, payload) VALUES (?, ?)",
+                msg.subject,
+                msg.payload
+            )
+            .execute(&self.pool)
+            .await;
+
+            if let Err(e) = result {
+                eprintln!("Database error: {}", e);
+            }
         }
         Ok(())
     }
