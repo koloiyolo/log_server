@@ -2,7 +2,7 @@ use poem::{Result, web::Data};
 use poem_openapi::{OpenApi, payload::Json};
 use sqlx::SqlitePool;
 
-use crate::message::Message;
+use super::message::Message;
 
 type MessageResponse = Result<Json<Vec<Message>>>;
 

@@ -37,3 +37,15 @@ Docs available in Your browser at:
 ```
 http://localhost:8000/docs
 ```
+
+## Current data flow
+At the moment, the entire system logic is split across multiple crates, each of which could easily function as an independent microservice.
+
+For the sake of simplicity, however, I decided to use a single main.rs file and tokio tasks instead of deploying separate microservices via Docker for this implementation.\
+It is just a prototype, okay?
+
+Currently data flow and comminication between services is:
+* Raw log data is sent to `FetchServer` instance, which listens on a user-defined UDP port.
+* `FetchServer` forwards the received logs to the `ProcessingServer` via a message queue system, in this case (nats.io)[nats.io]
+* The `ProcessingServer` processes the logs and inserts them into the database.
+* Users can then retrieve the processed data through predefined endpoints exposed by the `ApiServer`.
