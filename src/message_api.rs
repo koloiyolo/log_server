@@ -22,7 +22,7 @@ impl MessageApi {
 
     #[oai(path = "/count", method = "get")]
     async fn count(&self, pool: Data<&SqlitePool>) -> Json<i32> {
-        let result = sqlx::query_scalar!("SELECT COUNT(subject) FROM message")
+        let result = sqlx::query_scalar!("SELECT COUNT(date) FROM message")
             .fetch_one(pool.0)
             .await
             .unwrap();
