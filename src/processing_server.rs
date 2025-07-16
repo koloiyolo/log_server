@@ -26,8 +26,8 @@ impl ProcessingServer {
 
         while let Some(message) = subscriber.next().await {
             let msg = Message::from(message);
-            let result = sqlx::query!(
-                "INSERT INTO message (date, host, program, message) VALUES (?, ?, ? , ?)",
+            let result = sqlx::query_file!(
+                "sql/insert_message.sql",
                 msg.date,
                 msg.host,
                 msg.program,
