@@ -1301,6 +1301,7 @@ dependencies = [
  "futures",
  "poem",
  "poem-openapi",
+ "regex",
  "sqlx",
  "tokio",
 ]

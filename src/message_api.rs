@@ -12,7 +12,7 @@ pub struct MessageApi;
 impl MessageApi {
     #[oai(path = "/messages", method = "get")]
     async fn get_all(&self, pool: Data<&SqlitePool>) -> MessageResponse {
-        let result = sqlx::query_as!(Message, "SELECT * FROM message")
+        let result = sqlx::query_file_as!(Message, "sql/select_message.sql")
             .fetch_all(pool.0)
             .await
             .unwrap();
@@ -22,7 +22,7 @@ impl MessageApi {
 
     #[oai(path = "/count", method = "get")]
     async fn count(&self, pool: Data<&SqlitePool>) -> Json<i32> {
-        let result = sqlx::query_scalar!("SELECT COUNT(subject) FROM message")
+        let result = sqlx::query_file_scalar!("sql/count_message.sql")
             .fetch_one(pool.0)
             .await
             .unwrap();
