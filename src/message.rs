@@ -23,7 +23,7 @@ impl Message {
 
     /// parses text data int Message struct using regex
     fn from_regex(text: String) -> Result<Self, regex::Error> {
-        let pattern = match Regex::new(r"^<\d+>(\w+ \d+ \d+:\d+:\d+)\s+(\S+)\s+(\S+):\s+(.*)") {
+        let pattern = match Regex::new(r"^<\d+>(\w+ \d+ \d+:\d+:\d+)\s+(\S+)\s+(\S+)\s+(.*)") {
             Ok(r) => r,
             Err(e) => return Err(e),
         };
@@ -35,7 +35,7 @@ impl Message {
                 captures[3].to_string(),
                 captures[4].to_string(),
             ),
-            None => panic!("Pattern matching failed"),
+            None => panic!("Pattern matching failed for: {}", &text),
         };
 
         Ok(Message::new(date, host, program, message))
@@ -94,18 +94,41 @@ mod tests {
 
     #[test]
     fn test_message_from_regex_example() {
-        let pattern = String::from(
+        let text = String::from(
             "<1>Jul 16 19:11:07 host.local example_package.desktop[7101]: Example log message: OK",
         );
 
-        let message = Message::from_regex(pattern).unwrap_or_else(|e| panic!("{e}"));
+        let message = Message::from_regex(text).unwrap_or_else(|e| panic!("{e}"));
 
         assert_eq!(message.date, String::from("Jul 16 19:11:07"));
         assert_eq!(message.host, String::from("host.local"));
         assert_eq!(
             message.program,
-            String::from("example_package.desktop[7101]")
+            String::from("example_package.desktop[7101]:")
         );
         assert_eq!(message.message, String::from("Example log message: OK"));
+    }
+
+    #[test]
+    fn test_message_from_regex_from_panic() {
+        let text = String::from(
+            "<14>Jul 17 20:36:17 fedora com.discordapp.Discord.desktop[1 20:36:17.591 › The resource https://discordapp.com/ass.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+        );
+
+        let message = Message::from_regex(text).unwrap();
+        println!("{message:#?}");
+
+        assert_eq!(message.date, String::from("Jul 17 20:36:17"));
+        assert_eq!(message.host, String::from("fedora"));
+        assert_eq!(
+            message.program,
+            String::from("com.discordapp.Discord.desktop[1")
+        );
+        assert_eq!(
+            message.message,
+            String::from(
+                "20:36:17.591 › The resource https://discordapp.com/ass.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+            )
+        );
     }
 }
