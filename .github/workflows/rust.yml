@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Init database
-      run: apt install sqlite3 -y && sqlite3 message.db < migrations/message.sql
+      run: sqlite3 message.db < migrations/message.sql
     - name: Build
       run: cargo build --release --verbose
     - name: Run tests
