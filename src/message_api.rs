@@ -1,5 +1,8 @@
 use poem::{Result, web::Data};
-use poem_openapi::{OpenApi, payload::Json};
+use poem_openapi::{
+    OpenApi,
+    payload::{Json, PlainText},
+};
 use sqlx::SqlitePool;
 
 use super::message::Message;
@@ -28,5 +31,17 @@ impl MessageApi {
             .unwrap();
 
         Json(result)
+    }
+
+    #[oai(path = "/search", method = "post")]
+    async fn search(&self, pool: Data<&SqlitePool>, query: PlainText<String>) -> MessageResponse {
+        println!("{}", &query.0);
+        let query = format!("%{}%", query.0);
+        let result = sqlx::query_file_as!(Message, "sql/message/search.sql", query)
+            .fetch_all(pool.0)
+            .await
+            .unwrap();
+
+        Ok(Json(result))
     }
 }
