@@ -35,7 +35,6 @@ impl MessageApi {
 
     #[oai(path = "/search", method = "post")]
     async fn search(&self, pool: Data<&SqlitePool>, query: PlainText<String>) -> MessageResponse {
-        println!("{}", &query.0);
         let query = format!("%{}%", query.0);
         let result = sqlx::query_file_as!(Message, "sql/message/search.sql", query)
             .fetch_all(pool.0)
