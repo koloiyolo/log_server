@@ -1,5 +1,5 @@
 use super::message::Message;
-use async_nats::*;
+use async_nats::Subscriber;
 use futures::StreamExt;
 use sqlx::SqlitePool;
 
@@ -25,19 +25,20 @@ impl ProcessingServer {
         let mut subscriber = self.subscriber;
 
         while let Some(message) = subscriber.next().await {
-            let msg = Message::from(message);
-            let result = sqlx::query_file!(
-                "sql/message/insert.sql",
-                msg.date,
-                msg.host,
-                msg.program,
-                msg.message,
-            )
-            .execute(&self.pool)
-            .await;
+            if let Some(message) = Message::from_nats(message) {
+                let result = sqlx::query_file!(
+                    "sql/message/insert.sql",
+                    message.date,
+                    message.host,
+                    message.program,
+                    message.message,
+                )
+                .execute(&self.pool)
+                .await;
 
-            if let Err(e) = result {
-                eprintln!("Database error: {}", e);
+                if let Err(e) = result {
+                    eprintln!("Database error: {}", e);
+                }
             }
         }
         Ok(())

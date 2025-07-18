@@ -2,6 +2,9 @@ use regex::Regex;
 
 use poem_openapi::Object;
 
+/// takes async_nats::Message and parses it into Message struct
+type NatsMessage = async_nats::Message;
+
 #[derive(Debug, Clone, Object)]
 pub struct Message {
     pub date: String,
@@ -21,11 +24,22 @@ impl Message {
         }
     }
 
+    pub fn empty() -> Self {
+        let date = String::new();
+        let host = String::new();
+        let program = String::new();
+        let message = String::new();
+        Message::new(date, host, program, message)
+    }
+
     /// parses text data int Message struct using regex
-    fn from_regex(text: String) -> Result<Self, regex::Error> {
+    fn from_regex(text: String) -> Option<Self> {
         let pattern = match Regex::new(r"^<\d+>(\w+ \d+ \d+:\d+:\d+)\s+(\S+)\s+(\S+)\s+(.*)") {
             Ok(r) => r,
-            Err(e) => return Err(e),
+            Err(e) => {
+                eprintln!("{e}");
+                return None;
+            }
         };
 
         let (date, host, program, message) = match pattern.captures(&text) {
@@ -35,24 +49,36 @@ impl Message {
                 captures[3].to_string(),
                 captures[4].to_string(),
             ),
-            None => panic!("Pattern matching failed for: {}", &text),
+            None => {
+                eprintln!("Faile to capture groups");
+                return None;
+            }
         };
 
-        Ok(Message::new(date, host, program, message))
+        Some(Message::new(date, host, program, message))
     }
-}
 
-/// takes async_nats::Message and parses it into Message struct
-type NatsMessage = async_nats::Message;
-impl From<NatsMessage> for Message {
-    fn from(message: NatsMessage) -> Self {
+    pub fn from_nats(message: NatsMessage) -> Option<Self> {
         let text = String::from_utf8(message.payload.to_vec()).expect("Invalid UTF8");
         match Message::from_regex(text) {
-            Ok(v) => v,
-            Err(e) => panic!("{e}"),
+            Some(v) => Some(v),
+            None => None,
         }
     }
 }
+
+// From trait requires to return instance of <T>, I need to return Option<T>
+// impl From<NatsMessage> for Message {
+//     fn from(message: NatsMessage) -> Self {
+//         let text = String::from_utf8(message.payload.to_vec()).expect("Invalid UTF8");
+//         match Message::from_regex(text) {
+//             Some(v) => v,
+//             None => {
+//                 return Message::empty();
+//             }
+//         }
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -98,7 +124,7 @@ mod tests {
             "<1>Jul 16 19:11:07 host.local example_package.desktop[7101]: Example log message: OK",
         );
 
-        let message = Message::from_regex(text).unwrap_or_else(|e| panic!("{e}"));
+        let message = Message::from_regex(text).unwrap();
 
         assert_eq!(message.date, String::from("Jul 16 19:11:07"));
         assert_eq!(message.host, String::from("host.local"));
