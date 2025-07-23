@@ -2,7 +2,7 @@ use poem::{EndpointExt, Result, Route, Server, listener::TcpListener};
 use poem_openapi::OpenApiService;
 use sqlx::SqlitePool;
 
-use super::message_api::MessageApi;
+use crate::api::{message::MessageApi, user::UserApi};
 
 pub struct ApiServer {
     pool: SqlitePool,
@@ -18,7 +18,9 @@ impl ApiServer {
 
     pub async fn serve(self) -> Result<(), async_nats::Error> {
         let version = env!("CARGO_PKG_VERSION");
-        let api_service = OpenApiService::new(MessageApi, "Messages", version).server("");
+        let api_service =
+            OpenApiService::new((MessageApi, UserApi), "Message and User API", version).server("");
+
         let docs = api_service.openapi_explorer();
 
         let route = Route::new()

@@ -1,4 +1,4 @@
-use super::message::Message;
+use crate::model::message::Message;
 use async_nats::Subscriber;
 use futures::StreamExt;
 use sqlx::SqlitePool;
