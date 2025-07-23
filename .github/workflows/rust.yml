@@ -16,8 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Init database
+    - name: Init message table
       run: sqlite3 message.db < migrations/message.sql
+    - name: Init user table
+      run: sqlite3 message.db < migrations/user.sql
     - name: Build
       run: cargo build --release --verbose
     - name: Run tests
