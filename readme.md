@@ -23,6 +23,14 @@ For now the log server has:
 * [x] Api endpoints
 * [x] Api docs using
 
+Currently supported models:
+* [x] Message
+* [x] User
+
+Todo:
+* [ ] Password encryption
+* [ ] Authentication
+
 For now basic functionality of all of the above is implemented. Next step is further development and optimizations.\
 For example improving how messages are passed from the queue to the database. Instead of inserting each message 1 by 1, a buffer should be introduced to collect *n* messages and insert them in batches. This will reduce database IO overhead and improve performance.
 
