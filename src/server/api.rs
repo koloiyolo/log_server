@@ -2,7 +2,7 @@ use poem::{EndpointExt, Result, Route, Server, listener::TcpListener};
 use poem_openapi::OpenApiService;
 use sqlx::SqlitePool;
 
-use super::message_api::MessageApi;
+use crate::api::message::MessageApi;
 
 pub struct ApiServer {
     pool: SqlitePool,

@@ -5,7 +5,7 @@ use poem_openapi::{
 };
 use sqlx::SqlitePool;
 
-use super::message::Message;
+use crate::model::message::Message;
 
 type MessageResponse = Result<Json<Vec<Message>>>;
 

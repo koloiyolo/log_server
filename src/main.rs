@@ -1,8 +1,7 @@
 use clap::Parser;
-use log_server::api_server::ApiServer;
 use log_server::cli::Cli;
-use log_server::fetch_server::FetchServer;
-use log_server::processing_server::ProcessingServer;
+use log_server::database::init_database;
+use log_server::server::{api::ApiServer, fetch::FetchServer, processing::ProcessingServer};
 /// echo "this is a test" | nc -u -q 1 localhost 5014
 ///
 /// In rsyslog.conf:
@@ -20,6 +19,7 @@ async fn main() -> Result<(), async_nats::Error> {
     let subject = cli.subject;
 
     let database_url = DATABASE_URL.to_string();
+    init_database(&database_url).await;
 
     let fetch_server = FetchServer::new(&fetch_address, &queue_address, &subject, None).await?;
     let processing_server = ProcessingServer::new(&queue_address, &subject, &database_url).await?;
