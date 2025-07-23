@@ -38,10 +38,14 @@ Rest of docs is `todo!()`
 
 Example API endpoint `messages`
 ```bash
-curl http://localhost:8000/messages
+curl http://localhost:8000/message
+```
+Example API endpoint `users`
+```bash
+curl http://localhost:8000/user
 ```
 
-Docs available in Your browser at:
+Docs for both schema available in Your browser at:
 ```
 http://localhost:8000/docs
 ```
