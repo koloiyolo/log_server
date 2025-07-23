@@ -61,6 +61,13 @@ pub struct CreateRequest {
 }
 
 #[derive(Object)]
+pub struct UpdateRequest {
+    pub rowid: i64,
+    pub username: String,
+    pub email: String,
+}
+
+#[derive(Object)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,

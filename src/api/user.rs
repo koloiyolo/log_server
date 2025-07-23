@@ -1,11 +1,12 @@
 use poem::{Result, web::Data};
 use poem_openapi::{
     OpenApi,
+    param::Path,
     payload::{Json, PlainText},
 };
 use sqlx::SqlitePool;
 
-use crate::model::user::{CreateRequest, LoginRequest, User};
+use crate::model::user::{CreateRequest, LoginRequest, UpdateRequest, User};
 
 type UserResponse = Result<Json<Vec<User>>>;
 
@@ -17,6 +18,15 @@ impl UserApi {
     async fn get_all(&self, pool: Data<&SqlitePool>) -> UserResponse {
         let result = sqlx::query_file_as!(User, "sql/user/select.sql")
             .fetch_all(pool.0)
+            .await
+            .unwrap();
+        Ok(Json(result))
+    }
+
+    #[oai(path = "/user/:id", method = "get")]
+    async fn get(&self, pool: Data<&SqlitePool>, id: Path<i64>) -> Result<Json<User>> {
+        let result = sqlx::query_file_as!(User, "sql/user/get.sql", id.0)
+            .fetch_one(pool.0)
             .await
             .unwrap();
         Ok(Json(result))
@@ -37,7 +47,7 @@ impl UserApi {
         let result = sqlx::query_file_scalar!("sql/user/count.sql")
             .fetch_one(pool.0)
             .await
-            .unwrap();
+            .unwrap_or(0);
 
         Json(result)
     }
@@ -55,6 +65,30 @@ impl UserApi {
             .await
             .unwrap()
             .last_insert_rowid();
+        Json(result)
+    }
+
+    #[oai(path = "/user/update", method = "post")]
+    async fn update(&self, pool: Data<&SqlitePool>, body: Json<UpdateRequest>) -> Json<i64> {
+        let username = &body.username;
+        let email = &body.email;
+        let rowid = &body.rowid;
+
+        let result = sqlx::query_file!("sql/user/update.sql", username, email, rowid)
+            .execute(pool.0)
+            .await
+            .unwrap()
+            .last_insert_rowid();
+        Json(result)
+    }
+
+    #[oai(path = "/user/delete", method = "post")]
+    async fn delete(&self, pool: Data<&SqlitePool>, body: Json<i64>) -> Json<bool> {
+        let rowid = &body.0;
+        let result = sqlx::query_file!("sql/user/delete.sql", rowid)
+            .execute(pool.0)
+            .await
+            .is_ok();
         Json(result)
     }
 

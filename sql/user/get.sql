@@ -2,5 +2,5 @@ SELECT
     rowid,
     username,
     email,
-    hash
-FROM user WHERE username LIKE ?;
+    '' AS hash
+FROM user WHERE rowid LIKE ?;
