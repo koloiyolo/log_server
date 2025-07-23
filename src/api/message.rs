@@ -13,7 +13,7 @@ pub struct MessageApi;
 
 #[OpenApi]
 impl MessageApi {
-    #[oai(path = "/message/all", method = "get")]
+    #[oai(path = "/message", method = "get")]
     async fn get_all(&self, pool: Data<&SqlitePool>) -> MessageResponse {
         let result = sqlx::query_file_as!(Message, "sql/message/select.sql")
             .fetch_all(pool.0)

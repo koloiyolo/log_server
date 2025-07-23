@@ -52,3 +52,16 @@ fn check_password(password: String, hash: &String) -> bool {
     }
     false
 }
+
+#[derive(Object)]
+pub struct CreateRequest {
+    pub username: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Object)]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
