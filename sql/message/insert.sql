@@ -1,1 +1,6 @@
-INSERT INTO message (date, host, program, message) VALUES (?, ?, ?, ?);
+INSERT INTO message (
+    date,
+    host,
+    program,
+    message
+) VALUES (?, ?, ?, ?);

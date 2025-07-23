@@ -1,4 +1,5 @@
 use poem_openapi::Object;
+use std::fmt;
 
 #[derive(Debug, Clone, Object)]
 pub struct User {
@@ -7,7 +8,12 @@ pub struct User {
     pub email: String,
     pub hash: String,
 }
-
+/// TODO
+/// Separate password hash and hashing logic from User struct
+/// Example implementation:
+///
+/// Separate Hash struct that holds hashes tied to user username or rowid
+/// Used only for login, user creation, password reset.
 impl User {
     pub fn new(username: String, email: String, password: String) -> Self {
         if let Ok(hash) = hash_password(password) {
@@ -23,6 +29,16 @@ impl User {
 
     pub fn login(&self, password: String) -> bool {
         check_password(password, &self.hash)
+    }
+}
+
+impl fmt::Display for User {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(
+            f,
+            "(Id: {}\nUsername: {}\nEmail: {})",
+            self.rowid, self.username, self.email
+        )
     }
 }
 
