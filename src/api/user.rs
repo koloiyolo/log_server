@@ -68,11 +68,16 @@ impl UserApi {
         Json(result)
     }
 
-    #[oai(path = "/user/update", method = "post")]
-    async fn update(&self, pool: Data<&SqlitePool>, body: Json<UpdateRequest>) -> Json<i64> {
+    #[oai(path = "/user/update/:id", method = "post")]
+    async fn update(
+        &self,
+        pool: Data<&SqlitePool>,
+        id: Path<i64>,
+        body: Json<UpdateRequest>,
+    ) -> Json<i64> {
         let username = &body.username;
         let email = &body.email;
-        let rowid = &body.rowid;
+        let rowid = id.0;
 
         let result = sqlx::query_file!("sql/user/update.sql", username, email, rowid)
             .execute(pool.0)
@@ -82,9 +87,9 @@ impl UserApi {
         Json(result)
     }
 
-    #[oai(path = "/user/delete", method = "post")]
-    async fn delete(&self, pool: Data<&SqlitePool>, body: Json<i64>) -> Json<bool> {
-        let rowid = &body.0;
+    #[oai(path = "/user/delete/:id", method = "post")]
+    async fn delete(&self, pool: Data<&SqlitePool>, id: Path<i64>) -> Json<bool> {
+        let rowid = id.0;
         let result = sqlx::query_file!("sql/user/delete.sql", rowid)
             .execute(pool.0)
             .await

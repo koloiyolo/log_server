@@ -62,7 +62,6 @@ pub struct CreateRequest {
 
 #[derive(Object)]
 pub struct UpdateRequest {
-    pub rowid: i64,
     pub username: String,
     pub email: String,
 }
