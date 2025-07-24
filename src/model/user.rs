@@ -1,3 +1,5 @@
+use argon2::{Argon2, PasswordHasher, PasswordVerifier};
+use password_hash::{PasswordHash, SaltString, rand_core::OsRng};
 use poem_openapi::Object;
 use std::fmt;
 
@@ -9,7 +11,6 @@ pub struct User {
     pub hash: String,
 }
 /// TODO
-/// Separate password hash and hashing logic from User struct
 /// Example implementation:
 ///
 /// Separate Hash struct that holds hashes tied to user username or rowid
@@ -27,8 +28,11 @@ impl User {
         todo!("Handle gracefully, failed to create user");
     }
 
-    pub fn login(&self, password: String) -> bool {
-        check_password(password, &self.hash)
+    pub fn login(&self, password: String) -> Result<i64, String> {
+        match check_password(&password, &self.hash) {
+            true => Ok(*&self.rowid),
+            false => Err("".to_string()),
+        }
     }
 }
 
@@ -42,15 +46,23 @@ impl fmt::Display for User {
     }
 }
 
-fn hash_password(password: String) -> Result<String, Box<dyn std::error::Error>> {
-    Ok(password)
+fn hash_password(password: String) -> Result<String, password_hash::Error> {
+    let salt = SaltString::generate(&mut OsRng);
+
+    let argon2 = Argon2::default();
+    let hash = argon2.hash_password(&password.into_bytes(), &salt)?;
+    Ok(hash.to_string())
 }
 
-fn check_password(password: String, hash: &String) -> bool {
-    if password == *hash {
-        return true;
+fn check_password(password: &String, hash: &String) -> bool {
+    let hash = PasswordHash::new(hash);
+    if let Ok(hash) = hash {
+        Argon2::default()
+            .verify_password(password.as_bytes(), &hash)
+            .is_ok()
+    } else {
+        false
     }
-    false
 }
 
 #[derive(Object)]

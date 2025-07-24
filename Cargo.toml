@@ -1,6 +1,6 @@
 [package]
 name = "log_server"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 
 [profile.dev]
@@ -21,3 +21,5 @@ poem-openapi = { version = "2", features = ["swagger-ui", "openapi-explorer"]}
 poem = "1"
 sqlx = { version = "0.6.0", features = ["runtime-tokio-rustls", "sqlite"] }
 regex = "1.11.1"
+argon2 = "0.5.3"
+password-hash = "0.5.0"

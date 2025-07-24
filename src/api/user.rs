@@ -98,13 +98,15 @@ impl UserApi {
     }
 
     #[oai(path = "/user/login", method = "post")]
-    async fn login(&self, pool: Data<&SqlitePool>, body: Json<LoginRequest>) -> Json<bool> {
+    async fn login(&self, pool: Data<&SqlitePool>, body: Json<LoginRequest>) -> Json<i64> {
         let username = &body.username;
         let password = &body.password;
-        let user = sqlx::query_file_as!(User, "sql/user/get.sql", username)
+        let user = sqlx::query_file_as!(User, "sql/user/login.sql", username)
             .fetch_one(pool.0)
             .await
             .unwrap();
-        Json(user.login(password.to_owned()))
+
+        // 0 means no user. No data in sqlite table can have rowid of 0
+        Json(user.login(password.to_owned()).unwrap_or(0))
     }
 }
