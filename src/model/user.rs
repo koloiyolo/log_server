@@ -1,7 +1,7 @@
-use argon2::{Argon2, PasswordHasher, PasswordVerifier};
-use password_hash::{PasswordHash, SaltString, rand_core::OsRng};
 use poem_openapi::Object;
 use std::fmt;
+
+use crate::encryption::{check_password, hash_password};
 
 #[derive(Debug, Clone, Object)]
 pub struct User {
@@ -44,42 +44,4 @@ impl fmt::Display for User {
             self.rowid, self.username, self.email
         )
     }
-}
-
-fn hash_password(password: String) -> Result<String, password_hash::Error> {
-    let salt = SaltString::generate(&mut OsRng);
-
-    let argon2 = Argon2::default();
-    let hash = argon2.hash_password(&password.into_bytes(), &salt)?;
-    Ok(hash.to_string())
-}
-
-fn check_password(password: &String, hash: &String) -> bool {
-    let hash = PasswordHash::new(hash);
-    if let Ok(hash) = hash {
-        Argon2::default()
-            .verify_password(password.as_bytes(), &hash)
-            .is_ok()
-    } else {
-        false
-    }
-}
-
-#[derive(Object)]
-pub struct CreateRequest {
-    pub username: String,
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Object)]
-pub struct UpdateRequest {
-    pub username: String,
-    pub email: String,
-}
-
-#[derive(Object)]
-pub struct LoginRequest {
-    pub username: String,
-    pub password: String,
 }

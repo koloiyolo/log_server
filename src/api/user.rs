@@ -1,14 +1,34 @@
 use poem::{Result, web::Data};
 use poem_openapi::{
-    OpenApi,
+    Object, OpenApi,
     param::Path,
     payload::{Json, PlainText},
 };
 use sqlx::SqlitePool;
 
-use crate::model::user::{CreateRequest, LoginRequest, UpdateRequest, User};
+use crate::{encryption::hash_password, model::user::User};
 
 type UserResponse = Result<Json<Vec<User>>>;
+
+#[derive(Object)]
+pub struct CreateRequest {
+    pub username: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Object)]
+pub struct UpdateRequest {
+    pub username: Option<String>,
+    pub email: Option<String>,
+    pub password: Option<String>,
+}
+
+#[derive(Object)]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
 
 pub struct UserApi;
 
@@ -75,11 +95,20 @@ impl UserApi {
         id: Path<i64>,
         body: Json<UpdateRequest>,
     ) -> Json<i64> {
+        let rowid = id.0;
         let username = &body.username;
         let email = &body.email;
-        let rowid = id.0;
+        let password = &body.password;
 
-        let result = sqlx::query_file!("sql/user/update.sql", username, email, rowid)
+        let hash = match password {
+            Some(password) => match hash_password(password.to_owned()) {
+                Ok(hash) => Some(hash),
+                Err(_) => None,
+            },
+            None => None,
+        };
+
+        let result = sqlx::query_file!("sql/user/update.sql", username, email, hash, rowid)
             .execute(pool.0)
             .await
             .unwrap()

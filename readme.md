@@ -61,3 +61,19 @@ Currently data flow and comminication between services is:
 * `FetchServer` forwards the received logs to the `ProcessingServer` via a message queue system, in this case (nats.io)[nats.io]
 * The `ProcessingServer` processes the logs and inserts them into the database.
 * Users can then retrieve the processed data through predefined endpoints exposed by the `ApiServer`.
+
+## Installation
+Use sqlx-cli to preform migrations.
+* Installation:
+```bash
+cargo install sqlx-cli --features sqlite
+```
+* Migration:
+```bash
+sqlx db setup
+```
+
+To run API server simply run:
+```bash
+cargo run
+```
