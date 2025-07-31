@@ -20,7 +20,7 @@ impl FetchServer {
 
         let subject = subject.to_string();
 
-        let buffer_size = buffer_size.unwrap_or_else(|| 4096);
+        let buffer_size = buffer_size.unwrap_or(4096);
 
         Ok(FetchServer {
             socket,

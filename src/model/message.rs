@@ -60,10 +60,7 @@ impl Message {
 
     pub fn from_nats(message: NatsMessage) -> Option<Self> {
         let text = String::from_utf8(message.payload.to_vec()).expect("Invalid UTF8");
-        match Message::from_regex(text) {
-            Some(v) => Some(v),
-            None => None,
-        }
+        Message::from_regex(text)
     }
 }
 

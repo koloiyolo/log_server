@@ -8,7 +8,7 @@ pub fn hash_password(password: String) -> Result<String, password_hash::Error> {
     Ok(hash.to_string())
 }
 
-pub fn check_password(password: &String, hash: &String) -> bool {
+pub fn check_password(password: &str, hash: &str) -> bool {
     let hash = PasswordHash::new(hash);
     if let Ok(hash) = hash {
         Argon2::default()

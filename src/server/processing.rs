@@ -12,7 +12,7 @@ impl ProcessingServer {
     pub async fn new(
         queue_addres: &String,
         subject: &String,
-        database_url: &String,
+        database_url: &str,
     ) -> Result<Self, async_nats::Error> {
         let queue = async_nats::connect(queue_addres).await?;
         let subscriber = queue.subscribe(subject.to_string()).await?;
@@ -37,7 +37,7 @@ impl ProcessingServer {
                 .await;
 
                 if let Err(e) = result {
-                    eprintln!("Database error: {}", e);
+                    eprintln!("Database error: {e}");
                 }
             }
         }

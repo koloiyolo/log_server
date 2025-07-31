@@ -30,7 +30,7 @@ impl User {
 
     pub fn login(&self, password: String) -> Result<i64, String> {
         match check_password(&password, &self.hash) {
-            true => Ok(*&self.rowid),
+            true => Ok(self.rowid),
             false => Err("".to_string()),
         }
     }

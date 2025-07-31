@@ -1,4 +1,4 @@
-pub async fn init_database(database_url: &String) {
+pub async fn init_database(database_url: &str) {
     let pool = sqlx::SqlitePool::connect(database_url).await.unwrap();
 
     let _ = sqlx::query_file!("migrations/01_message.sql")

@@ -2,13 +2,14 @@ use clap::Parser;
 use log_server::cli::Cli;
 use log_server::database::init_database;
 use log_server::server::{api::ApiServer, fetch::FetchServer, processing::ProcessingServer};
+
+/// Database URI used in all DbPool inits
+const DATABASE_URL: &str = "sqlite://message.db";
+
 /// echo "this is a test" | nc -u -q 1 localhost 5014
 ///
 /// In rsyslog.conf:
 /// *.* action(type="omfwd" target="127.0.0.1" port="5014" protocol="udp")
-
-const DATABASE_URL: &str = "sqlite://message.db";
-
 #[tokio::main]
 async fn main() -> Result<(), async_nats::Error> {
     let cli = Cli::parse();

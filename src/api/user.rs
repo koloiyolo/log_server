@@ -101,10 +101,7 @@ impl UserApi {
         let password = &body.password;
 
         let hash = match password {
-            Some(password) => match hash_password(password.to_owned()) {
-                Ok(hash) => Some(hash),
-                Err(_) => None,
-            },
+            Some(password) => hash_password(password.to_owned()).ok(),
             None => None,
         };
 

@@ -10,9 +10,9 @@ pub struct ApiServer {
 }
 
 impl ApiServer {
-    pub async fn new(address: &String, database_url: &String) -> Result<Self, async_nats::Error> {
+    pub async fn new(address: &str, database_url: &str) -> Result<Self, async_nats::Error> {
         let pool = SqlitePool::connect(database_url).await?;
-        let address = address.clone();
+        let address = address.to_owned();
         Ok(ApiServer { pool, address })
     }
 
