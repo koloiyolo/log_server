@@ -28,7 +28,7 @@ Currently supported models:
 * [x] User
 
 Todo:
-* [ ] Password encryption
+* [x] Password encryption
 * [ ] Authentication
 
 For now basic functionality of all of the above is implemented. Next step is further development and optimizations.\

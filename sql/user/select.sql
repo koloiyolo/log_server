@@ -2,6 +2,6 @@ SELECT
     rowid,
     username,
     email,
-    '' AS hash
+    '********' AS hash
 FROM user
 ORDER BY rowid;

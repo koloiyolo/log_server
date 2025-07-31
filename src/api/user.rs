@@ -108,12 +108,12 @@ impl UserApi {
             None => None,
         };
 
-        let result = sqlx::query_file!("sql/user/update.sql", username, email, hash, rowid)
+        let _ = sqlx::query_file!("sql/user/update.sql", username, email, hash, rowid)
             .execute(pool.0)
             .await
-            .unwrap()
-            .last_insert_rowid();
-        Json(result)
+            .unwrap();
+
+        Json(rowid)
     }
 
     #[oai(path = "/user/delete/:id", method = "post")]
