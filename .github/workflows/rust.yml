@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Init message table
-      run: sqlite3 message.db < migrations/message.sql
-    - name: Init user table
-      run: sqlite3 message.db < migrations/user.sql
+    - name: Download sqlx CLI tool for sqlite
+      run: cargo install sqlx-cli --features sqlite
+    - name: Setup test database 
+      run: sqlx db setup
     - name: Build
       run: cargo build --release --verbose
     - name: Run tests
