@@ -5,6 +5,7 @@ use poem_openapi::{
 };
 use sqlx::SqlitePool;
 
+use crate::model::dbrecord::DbRecord;
 use crate::model::message::Message;
 
 type MessageResponse = Result<Json<Vec<Message>>>;
@@ -15,10 +16,7 @@ pub struct MessageApi;
 impl MessageApi {
     #[oai(path = "/message", method = "get")]
     async fn get_all(&self, pool: Data<&SqlitePool>) -> MessageResponse {
-        let result = sqlx::query_file_as!(Message, "sql/message/select.sql")
-            .fetch_all(pool.0)
-            .await
-            .unwrap();
+        let result = Message::get_limit(1, pool.0).await.unwrap();
 
         Ok(Json(result))
     }
@@ -26,11 +24,7 @@ impl MessageApi {
     #[oai(path = "/message/search", method = "post")]
     async fn search(&self, pool: Data<&SqlitePool>, query: PlainText<String>) -> MessageResponse {
         let query = format!("%{}%", query.0);
-        let result = sqlx::query_file_as!(Message, "sql/message/search.sql", query)
-            .fetch_all(pool.0)
-            .await
-            .unwrap();
-
+        let result = Message::search(query, pool.0).await.unwrap();
         Ok(Json(result))
     }
 

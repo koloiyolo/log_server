@@ -1,6 +1,7 @@
-use regex::Regex;
-
+use crate::model::dbrecord::DbRecord;
 use poem_openapi::Object;
+use regex::Regex;
+use sqlx::SqlitePool;
 
 /// takes async_nats::Message and parses it into Message struct
 type NatsMessage = async_nats::Message;
@@ -22,14 +23,6 @@ impl Message {
             program,
             message,
         }
-    }
-
-    pub fn empty() -> Self {
-        let date = String::new();
-        let host = String::new();
-        let program = String::new();
-        let message = String::new();
-        Message::new(date, host, program, message)
     }
 
     /// parses text data int Message struct using regex
@@ -64,6 +57,59 @@ impl Message {
     }
 }
 
+impl Default for Message {
+    fn default() -> Self {
+        let date = String::new();
+        let host = String::new();
+        let program = String::new();
+        let message = String::new();
+        Message::new(date, host, program, message)
+    }
+}
+
+impl DbRecord<SqlitePool> for Message {
+    type Id = i64;
+    async fn delete(id: Self::Id, pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        sqlx::query_file!("sql/message/delete.sql", id)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+    async fn find_by_id(id: Self::Id, pool: &SqlitePool) -> Result<Option<Self>, sqlx::Error> {
+        let result = sqlx::query_file_as!(Message, "sql/message/get.sql", id)
+            .fetch_one(pool)
+            .await?;
+        Ok(Some(result))
+    }
+    async fn insert(self, pool: &SqlitePool) -> Result<Self::Id, sqlx::Error> {
+        let result = sqlx::query_file!(
+            "sql/message/insert.sql",
+            self.date,
+            self.host,
+            self.program,
+            self.message
+        )
+        .execute(pool)
+        .await?
+        .last_insert_rowid();
+        Ok(result)
+    }
+    async fn update(self, pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        todo!()
+    }
+    async fn get_limit(limit: usize, pool: &SqlitePool) -> Result<Vec<Self>, sqlx::Error> {
+        let result = sqlx::query_file_as!(Message, "sql/message/select.sql")
+            .fetch_all(pool)
+            .await?;
+        Ok(result)
+    }
+    async fn search(query: String, pool: &SqlitePool) -> Result<Vec<Self>, sqlx::Error> {
+        let result = sqlx::query_file_as!(Message, "sql/message/search.sql", query)
+            .fetch_all(pool)
+            .await?;
+        Ok(result)
+    }
+}
 // From trait requires to return instance of <T>, I need to return Option<T>
 // impl From<NatsMessage> for Message {
 //     fn from(message: NatsMessage) -> Self {

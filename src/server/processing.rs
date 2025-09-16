@@ -1,3 +1,4 @@
+use crate::model::dbrecord::DbRecord;
 use crate::model::message::Message;
 use async_nats::Subscriber;
 use futures::StreamExt;
@@ -26,15 +27,7 @@ impl ProcessingServer {
 
         while let Some(message) = subscriber.next().await {
             if let Some(message) = Message::from_nats(message) {
-                let result = sqlx::query_file!(
-                    "sql/message/insert.sql",
-                    message.date,
-                    message.host,
-                    message.program,
-                    message.message,
-                )
-                .execute(&self.pool)
-                .await;
+                let result = message.insert(&self.pool).await;
 
                 if let Err(e) = result {
                     eprintln!("Database error: {e}");

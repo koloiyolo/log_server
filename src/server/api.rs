@@ -22,6 +22,7 @@ impl ApiServer {
             OpenApiService::new((MessageApi, UserApi), "Message and User API", version).server("");
 
         let docs = api_service.openapi_explorer();
+        println!("Listening on http://{}/docs", self.address);
 
         let route = Route::new()
             .nest("/", api_service)
